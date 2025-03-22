@@ -3,8 +3,11 @@ const { Client, LocalAuth } = require("whatsapp-web.js");
 const qrcode = require("qrcode");
 const cors = require("cors");
 const app = express();
-const port = 5000;
+const dotenv = require("dotenv");
 
+dotenv.config();
+
+const port = process.env.PORT || 5000;
 app.use(express.json());
 app.use(cors());
 const clients = {};
@@ -25,8 +28,10 @@ app.post("/start-session", async (req, res) => {
   try {
     const client = new Client({
       authStrategy: new LocalAuth({ clientId: sessionId }),
+      puppeteer: {
+        args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      },
     });
-
     clients[sessionId] = { client, qrCode: null };
 
     client.on("qr", async (qr) => {
